@@ -20,17 +20,17 @@
     "url": "git://github.com/durs/node-win32ole.git"
   },
   "dependencies": {
-    "assert": ">= 0.4.9",
-    "async": ">= 0.1.22",
-    "ref-struct": ">= 0.0.5",
-    "ref": ">= 0.1.3"
+    "assert": ">=1.4.1",
+    "async": ">=2.6.2",
+    "ref-struct": ">=1.1.0",
+    "ref": ">=1.3.5"
   },
   "devDependencies": {
-    "mocha": ">= 1.8.1",
-    "assert": ">= 0.4.9",
-    "async": ">= 0.1.22",
-    "ref-struct": ">= 0.0.5",
-    "ref": ">= 0.1.3"
+    "mocha": ">=6.0.1",
+    "assert": ">=1.4.1",
+    "async": ">=2.6.2",
+    "ref-struct": ">=1.1.0",
+    "ref": ">=1.3.5"
   },
   "engines": {
     "node": ">= 4.0.0"
