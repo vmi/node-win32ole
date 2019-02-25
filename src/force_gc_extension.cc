@@ -24,7 +24,7 @@ namespace node_win32ole {
         BDISPFUNCDAT("context %s " __FUNCTION__ " %s\n", "preset", "end");
         BDISPFUNCIN();
         Local<String> sourceObj = String::NewFromUtf8(isolate, "gc()");
-        TryCatch try_catch;
+        TryCatch try_catch(isolate);
         Local<Script> scriptObj = Script::Compile(sourceObj);
         if (scriptObj.IsEmpty()) {
             std::string msg("Can't compile v8/gc : gc();\n");

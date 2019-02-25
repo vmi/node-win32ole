@@ -3,6 +3,7 @@
 
 #include <ole2.h>
 #include <locale.h>
+#include <malloc.h>
 
 #include <vector>
 #include <iomanip>

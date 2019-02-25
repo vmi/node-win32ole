@@ -36,6 +36,7 @@
     "node": ">= 4.0.0"
   },
   "scripts": {
+    "build": "node-gyp configure && node-gyp build",
     "test": "nmake /a test"
   },
   "licenses": [{ "type": "BSD" }],

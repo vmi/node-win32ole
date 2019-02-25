@@ -22,7 +22,7 @@ public:
 	static void New(const FunctionCallbackInfo<Value>& args);
 
 	static std::string CreateStdStringMBCSfromUTF8(Handle<Value> v); // *** p.
-	static OCVariant *CreateOCVariant(Handle<Value> v); // *** private
+	static OCVariant *CreateOCVariant(Handle<Value> v, Isolate *isolate); // *** private
 	static void CreateUndefined(Isolate* isolate, Local<Object> &instance); // *** private
 	static void OLEIsA(const FunctionCallbackInfo<Value>& args);
 	static void OLEVTName(const FunctionCallbackInfo<Value>& args);

@@ -109,9 +109,9 @@ namespace node_win32ole {
         return s;
     }
 
-    OCVariant *V8Variant::CreateOCVariant(Handle<Value> v)
+    OCVariant *V8Variant::CreateOCVariant(Handle<Value> v, Isolate* isolate)
     {
-        if (v.IsEmpty()) 
+        if (v.IsEmpty())
         {
             std::cerr << "[Empty(!)]" << std::endl;
             std::cerr.flush();
@@ -186,7 +186,12 @@ namespace node_win32ole {
         else if (v->IsRegExp()) {
             std::cerr << "[RegExp (bug?)]" << std::endl;
             std::cerr.flush();
-            return new OCVariant(CreateStdStringMBCSfromUTF8(v->ToDetailString()));
+            Local<String> detail;
+            if (v->ToDetailString(isolate->GetCurrentContext()).ToLocal(&detail)) {
+                return new OCVariant(CreateStdStringMBCSfromUTF8(detail));
+            } else {
+                return new OCVariant(CreateStdStringMBCSfromUTF8(v));
+            }
         }
         else if (v->IsString()) {
             return new OCVariant(CreateStdStringMBCSfromUTF8(v));
@@ -339,38 +344,38 @@ namespace node_win32ole {
         if (!ocv) { std::cerr << "ocv is null"; std::cerr.flush(); }
         CHECK_OCV(ocv);
         switch (ocv->v.vt) {
-        case VT_EMPTY: 
+        case VT_EMPTY:
             args.GetReturnValue().Set(Undefined(isolate));
             break;
         case VT_NULL:
             args.GetReturnValue().Set(Null(isolate));
             break;
-        case VT_DISPATCH: 
+        case VT_DISPATCH:
             args.GetReturnValue().Set(thisObject); // through it
             break;
         case VT_BOOL:
-            OLEBoolean(args); 
-            break; 
+            OLEBoolean(args);
+            break;
         case VT_I4:
         case VT_INT:
         case VT_UI4:
-        case VT_UINT: 
-            OLEInt32(args); 
+        case VT_UINT:
+            OLEInt32(args);
             break;
-        case VT_I8: 
+        case VT_I8:
         case VT_UI8:
             OLEInt64(args);
             break;
-        case VT_R8: 
+        case VT_R8:
             OLENumber(args);
             break;
-        case VT_DATE: 
+        case VT_DATE:
             OLEDate(args);
             break;
-        case VT_BSTR: 
+        case VT_BSTR:
             OLEUtf8(args);
             break;
-        case VT_ARRAY: 
+        case VT_ARRAY:
         case VT_SAFEARRAY:
             std::cerr << "[Array (not implemented now)]" << std::endl;
             std::cerr.flush();
@@ -407,7 +412,7 @@ namespace node_win32ole {
             v8v->property_carryover.erase();
             result = INSTANCE_CALL(v->ToObject(), "call", argc, argv);
             if (!result->IsObject()) {
-                OCVariant *rv = V8Variant::CreateOCVariant(result);
+                OCVariant *rv = V8Variant::CreateOCVariant(result, isolate);
                 CHECK_OCV(rv);
                 OCVariant *o = castedInternalField<OCVariant>(v->ToObject());
                 CHECK_OCV(o);
@@ -432,7 +437,7 @@ namespace node_win32ole {
         Array *a = Array::Cast(*av1);
         for (size_t i = 0; i < a->Length(); ++i) {
             OCVariant *o = V8Variant::CreateOCVariant(
-                ARRAY_AT(a, (i ? i : a->Length()) - 1));
+                ARRAY_AT(a, (i ? i : a->Length()) - 1), isolate);
             CHECK_OCV(o);
             if (!i) argchain = o;
             else argchain->push(o);
@@ -513,7 +518,7 @@ namespace node_win32ole {
         OLE_PROCESS_CARRY_OVER(thisObject);
         OCVariant *ocv = castedInternalField<OCVariant>(thisObject);
         CHECK_OCV(ocv);
-        OCVariant *argchain = V8Variant::CreateOCVariant(av1);
+        OCVariant *argchain = V8Variant::CreateOCVariant(av1, isolate);
         if (!argchain) {
             OLETRACEOUT();
             RETURN_TYPE_ERROR(__FUNCTION__" the second argument is not valid (null OCVariant)");
@@ -623,7 +628,7 @@ namespace node_win32ole {
             && std::string("isPrototypeOf") != *u8name
             && std::string("propertyIsEnumerable") != *u8name
             //&& std::string("_") != *u8name
-            ) 
+            )
         {
             OLE_PROCESS_CARRY_OVER(thisObject);
         }
@@ -655,7 +660,7 @@ namespace node_win32ole {
             }
             OLETRACEFLUSH();
             OLETRACEOUT();
-            args.GetReturnValue().Set(FunctionTemplate::New(isolate, 
+            args.GetReturnValue().Set(FunctionTemplate::New(isolate,
                 fundamentals[i].func, thisObject)->GetFunction());
             return;
         }
@@ -668,7 +673,7 @@ namespace node_win32ole {
         else {
             Handle<Object> vResult;
             V8Variant::CreateUndefined(isolate, vResult); // uses much memory
-            OCVariant *rv = V8Variant::CreateOCVariant(thisObject);
+            OCVariant *rv = V8Variant::CreateOCVariant(thisObject, isolate);
             CHECK_OCV(rv);
             OCVariant *o = castedInternalField<OCVariant>(vResult);
             CHECK_OCV(o);
